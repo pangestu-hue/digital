@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+  SAUMA SHOP token system
+  Base: warm off-white paper background, ink text
+  Accent: clove (deep spice red) for CTAs/flash-sale, gold for coin/reward
+  Rationale: marketplace mixes food + digital goods (buku, ebook, dsb) —
+  palette leans warm/market rather than generic SaaS blue.
+*/
+@layer base {
+  :root {
+    --background: 32 30% 97%;
+    --foreground: 20 25% 12%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 20 25% 12%;
+
+    --primary: 8 62% 42%;
+    --primary-foreground: 32 30% 97%;
+
+    --secondary: 38 55% 55%;
+    --secondary-foreground: 20 25% 12%;
+
+    --muted: 32 20% 92%;
+    --muted-foreground: 20 10% 40%;
+
+    --accent: 152 35% 32%;
+    --accent-foreground: 32 30% 97%;
+
+    --destructive: 0 72% 45%;
+    --destructive-foreground: 32 30% 97%;
+
+    --border: 32 20% 88%;
+    --input: 32 20% 88%;
+    --ring: 8 62% 42%;
+
+    --radius: 0.75rem;
+
+    --font-display: "Fraunces", serif;
+    --font-sans: "Inter", sans-serif;
+  }
+
+  .dark {
+    --background: 20 20% 8%;
+    --foreground: 32 30% 95%;
+    --card: 20 18% 11%;
+    --card-foreground: 32 30% 95%;
+    --primary: 8 62% 52%;
+    --primary-foreground: 20 20% 8%;
+    --secondary: 38 55% 55%;
+    --secondary-foreground: 20 20% 8%;
+    --muted: 20 14% 16%;
+    --muted-foreground: 32 15% 65%;
+    --accent: 152 35% 42%;
+    --accent-foreground: 20 20% 8%;
+    --destructive: 0 62% 45%;
+    --destructive-foreground: 32 30% 95%;
+    --border: 20 14% 18%;
+    --input: 20 14% 18%;
+    --ring: 8 62% 52%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-sans;
+  }
+}
