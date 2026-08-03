@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Fraunces, Inter } from "next/font/google";
+import { CartProvider } from "@/components/cart/cart-context";
+import { SiteHeader } from "@/components/layout/site-header";
 import "./globals.css";
 
 const fraunces = Fraunces({
@@ -37,7 +39,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="id" className={`${fraunces.variable} ${inter.variable}`}>
-      <body>{children}</body>
+      <body>
+        <CartProvider>
+          <SiteHeader />
+          {children}
+        </CartProvider>
+      </body>
     </html>
   );
 }
