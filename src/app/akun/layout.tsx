@@ -6,6 +6,8 @@ const NAV = [
   { href: "/akun", label: "Profil" },
   { href: "/akun/pesanan", label: "Riwayat Pesanan" },
   { href: "/akun/wishlist", label: "Wishlist" },
+  { href: "/akun/checkin", label: "Check-in" },
+  { href: "/akun/referral", label: "Referral" },
 ];
 
 export default async function AccountLayout({ children }: { children: React.ReactNode }) {

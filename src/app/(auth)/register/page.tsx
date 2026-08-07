@@ -1,14 +1,16 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { GoogleButton } from "@/components/auth/google-button";
 
-export default function RegisterPage() {
+function RegisterForm() {
   const router = useRouter();
+  const params = useSearchParams();
+  const referralCode = params.get("ref") ?? undefined;
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -23,7 +25,7 @@ export default function RegisterPage() {
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, email, password }),
+        body: JSON.stringify({ username, email, password, referralCode }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Registrasi gagal");
@@ -38,7 +40,10 @@ export default function RegisterPage() {
   return (
     <main className="container flex min-h-[80vh] max-w-md flex-col justify-center py-12">
       <h1 className="mb-1 font-display text-2xl font-semibold">Buat akun</h1>
-      <p className="mb-6 text-sm text-muted-foreground">Daftar untuk mulai belanja di SAUMA SHOP.</p>
+      <p className="mb-6 text-sm text-muted-foreground">
+        Daftar untuk mulai belanja di SAUMA SHOP.
+        {referralCode && <span className="block text-accent">Kode referral: {referralCode}</span>}
+      </p>
 
       <GoogleButton />
       <div className="my-4 flex items-center gap-3 text-xs text-muted-foreground">
@@ -79,5 +84,13 @@ export default function RegisterPage() {
         </Link>
       </p>
     </main>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={null}>
+      <RegisterForm />
+    </Suspense>
   );
 }

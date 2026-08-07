@@ -8,6 +8,7 @@ const schema = z.object({
   username: z.string().min(3).max(24).regex(/^[a-zA-Z0-9_]+$/, "Username hanya boleh huruf, angka, underscore"),
   email: z.string().email(),
   password: z.string().min(8, "Password minimal 8 karakter"),
+  referralCode: z.string().trim().optional(),
 });
 
 export async function POST(req: Request) {
@@ -16,7 +17,7 @@ export async function POST(req: Request) {
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "Data tidak valid" }, { status: 400 });
   }
-  const { username, email, password } = parsed.data;
+  const { username, email, password, referralCode } = parsed.data;
   const admin = createAdminClient();
 
   // Check username uniqueness up front for a clearer error than the DB constraint
@@ -44,6 +45,18 @@ export async function POST(req: Request) {
       { error: isDuplicate ? "Email sudah terdaftar" : createError.message },
       { status: isDuplicate ? 409 : 400 }
     );
+  }
+
+  if (referralCode && created?.user?.id) {
+    const { data: referrer } = await admin
+      .from("profiles")
+      .select("id")
+      .eq("referral_code", referralCode.trim())
+      .maybeSingle();
+    if (referrer && referrer.id !== created.user.id) {
+      await admin.from("profiles").update({ referred_by: referrer.id }).eq("id", created.user.id);
+      await admin.from("referrals").insert({ referrer_id: referrer.id, referee_id: created.user.id });
+    }
   }
 
   try {
