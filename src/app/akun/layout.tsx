@@ -6,6 +6,7 @@ const NAV = [
   { href: "/akun", label: "Profil" },
   { href: "/akun/pesanan", label: "Riwayat Pesanan" },
   { href: "/akun/wishlist", label: "Wishlist" },
+  { href: "/akun/wallet", label: "Wallet" },
   { href: "/akun/checkin", label: "Check-in" },
   { href: "/akun/referral", label: "Referral" },
 ];

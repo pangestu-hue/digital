@@ -2,6 +2,44 @@ import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
 import { getPakasirTransactionDetail } from "@/lib/pakasir";
 
+async function handleWalletTopup(admin: ReturnType<typeof createAdminClient>, body: any) {
+  const txId = body.order_id.slice(3); // strip "WT-"
+
+  const { data: tx } = await admin
+    .from("wallet_transactions")
+    .select("id, user_id, amount, status")
+    .eq("id", txId)
+    .maybeSingle();
+
+  if (!tx) {
+    return NextResponse.json({ ok: true, note: "wallet tx not found" });
+  }
+  if (tx.status === "success") {
+    return NextResponse.json({ ok: true, note: "already processed" });
+  }
+  if (Number(body.amount) !== tx.amount) {
+    return NextResponse.json({ error: "Nominal tidak sesuai" }, { status: 400 });
+  }
+
+  let confirmed;
+  try {
+    confirmed = await getPakasirTransactionDetail(body.order_id, tx.amount);
+  } catch {
+    return NextResponse.json({ error: "Gagal verifikasi ke Pakasir" }, { status: 502 });
+  }
+  if (!confirmed || confirmed.status !== "completed") {
+    return NextResponse.json({ ok: true, note: "not completed yet" });
+  }
+
+  const { data: profile } = await admin.from("profiles").select("balance").eq("id", tx.user_id).maybeSingle();
+  if (profile) {
+    await admin.from("profiles").update({ balance: profile.balance + tx.amount }).eq("id", tx.user_id);
+  }
+  await admin.from("wallet_transactions").update({ status: "success" }).eq("id", tx.id);
+
+  return NextResponse.json({ ok: true });
+}
+
 export async function POST(req: Request) {
   const body = await req.json().catch(() => null);
   if (!body?.order_id || typeof body.amount !== "number") {
@@ -9,6 +47,12 @@ export async function POST(req: Request) {
   }
 
   const admin = createAdminClient();
+
+  // Wallet top-up confirmations use a "WT-{wallet_transactions.id}" order_id
+  // so we can tell them apart from regular order payments here.
+  if (typeof body.order_id === "string" && body.order_id.startsWith("WT-")) {
+    return handleWalletTopup(admin, body);
+  }
 
   const { data: order } = await admin
     .from("orders")
