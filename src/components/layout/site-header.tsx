@@ -1,12 +1,24 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ShoppingCart, User } from "lucide-react";
 import { useCart } from "@/components/cart/cart-context";
+import { createClient } from "@/lib/supabase/client";
 
 export function SiteHeader() {
   const { items } = useCart();
   const count = items.reduce((sum, i) => sum + i.quantity, 0);
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data }) => setLoggedIn(Boolean(data.user)));
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => setLoggedIn(Boolean(session?.user)));
+    return () => subscription.unsubscribe();
+  }, []);
 
   return (
     <header className="sticky top-0 z-10 border-b border-border bg-background/95 backdrop-blur">
@@ -23,7 +35,7 @@ export function SiteHeader() {
               </span>
             )}
           </Link>
-          <Link href="/login">
+          <Link href={loggedIn ? "/akun" : "/login"}>
             <User className="h-5 w-5" />
           </Link>
         </nav>

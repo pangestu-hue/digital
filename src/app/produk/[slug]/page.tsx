@@ -4,6 +4,7 @@ import { Star } from "lucide-react";
 import { getProductBySlug, getRelatedProducts } from "@/lib/queries";
 import { formatIDR } from "@/lib/utils";
 import { ProductActions } from "@/components/product/product-actions";
+import { WishlistButton } from "@/components/product/wishlist-button";
 import { ProductCard } from "@/components/product/product-card";
 
 export async function generateMetadata({
@@ -91,8 +92,9 @@ export default async function ProductDetailPage({
             <p className="mt-2 text-sm text-muted-foreground">Stok: {product.stock ?? 0}</p>
           )}
 
-          <div className="mt-6">
+          <div className="mt-6 flex gap-3">
             <ProductActions product={product} />
+            <WishlistButton productId={product.id} />
           </div>
 
           {product.description && (
